@@ -3,12 +3,21 @@ const fs = require('fs');
 const express = require('express');
 const helmet = require('helmet');
 const path = require('path');
+require('dotenv').config();
+const connectDB = require('./config/database');
+const cookieParser = require('cookie-parser');
+const { parseFormData } = require('./middleware/csrfMiddleware');
+
+// Connect to MongoDB
+connectDB();
 
 const app = express();
 const PORT = 3000;
 
 // Middleware
 app.use(express.json());
+app.use(cookieParser());
+app.use(parseFormData);
 app.use(express.static('public'));
 app.use(helmet({
   contentSecurityPolicy: {
@@ -26,9 +35,14 @@ app.use(helmet({
   },
 }));
 
-// Import routes
+// Import routes (AFTER middleware)
+const authRoutes = require('./routes/auth');
 const photoRoutes = require('./routes/photos');
+const adminRoutes = require('./routes/admin');
+
+app.use('/', authRoutes);
 app.use('/', photoRoutes);
+app.use('/', adminRoutes);
 
 // Basic health check route
 app.get('/', (req, res) => {
@@ -47,8 +61,8 @@ try {
   };
 
   https.createServer(options, app).listen(PORT, () => {
-    console.log(`🔒 Secure server running on https://localhost:${PORT}`);
-    console.log(`📸 Photo sharing app is ready!`);
+    console.log(`Secure server running on https://localhost:${PORT}`);
+    console.log(`Photo sharing app is ready!`);
   });
 } catch (error) {
   console.error('❌ Error starting HTTPS server:');

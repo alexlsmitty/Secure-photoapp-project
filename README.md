@@ -1,126 +1,414 @@
-# Secure Photo Sharing App
+# Secure Photo Sharing Application
 
-A secure web application built with Express.js and Vue that implements HTTPS encryption and caching strategies to improve performance. 
+A secure photo sharing web application built with Node.js and Express, featuring robust authentication, role-based access control, and multiple layers of security to protect user data and prevent common web vulnerabilities. Additionally has a Vue.js CDN front-end, to make the user interface easier to navigate. 
 
-## Phase 1: Secure HTTPS Server with Caching
+## Table of Contents
 
-### Setup Instructions
+- [Quick Start](#quick-start)
+- [Authentication Mechanisms](#authentication-mechanisms)
+- [Role-Based Access Control](#role-based-access-control)
+- [Security Features](#security-features)
+- [API Endpoints](#api-endpoints)
+- [Lessons Learned](#lessons-learned)
 
-1. **Install Dependencies**
+## Quick Start
+
+### Prerequisites
+
+- Node.js (v14 or higher)
+- MongoDB (local or cloud instance)
+- npm or yarn package manager
+
+### Installation & Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/Secure-photoapp-project.git
+   cd Secure-photoapp-project
+   ```
+
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-2. **Generate SSL Certificates**
+3. **Generate SSL certificates** (required for HTTPS)
    ```bash
    openssl req -nodes -new -x509 -keyout server.key -out server.cert
    ```
-   - You'll be prompted for information (Country, State, etc.)
-   - You can press Enter to skip through these prompts or fill them in
-   - This creates a self-signed certificate for local development
-   - Skip this step if using the default server setup included within the repo
 
-3. **Start the Server**
+4. **Configure environment variables**
+   Create a `.env` file in the root directory:
+   ```
+   MONGODB_URI=mongodb://localhost:27017/photo-app
+   JWT_SECRET=your-super-secret-jwt-key-please-for-the-love-of-god-change-this-or-people-will-hack-your-stuff
+   GOOGLE_CLIENT_ID=your-google-client-id
+   GOOGLE_CLIENT_SECRET=your-google-client-secret
+   NODE_ENV=development
+   ```
+
+5. **Start the application**
    ```bash
    npm start
    ```
-   
-4. **Access the App**
-   - Navigate to `https://localhost:3000`
-   - Your browser will show a security warning (expected with self-signed certificates)
-   - Click "Advanced" and "Proceed to localhost" to continue
+   The app will run on `https://localhost:3000`
 
-### SSL Configuration
+   For development with auto-reload:
+   ```bash
+   npm run dev
+   ```
 
-**Method Used:** Self-signed certificate with OpenSSL
+---
 
-**Why this approach?**
-Frankly, while I would have liked to use Let's Encrypt I didn't want to bother with setting up a domain in order to use it. Because this project is currently only in local development, I figured I would do this later if required and reevaluate when the time comes. For now, a self-signed certificate with OpenSSL will do just fine. The warning is simply a result of the fact that my self-signed certificate isn't verified by a trusted Certificate Authority, otherwise it does still have an HTTPS connection established and shows that I'm capable of configuring one. 
+## Authentication Mechanisms
 
-**Security Headers Implemented:**
-- Content Security Policy (CSP): Prevents XSS attacks by controlling resource loading
-- X-Frame-Options: Prevents clickjacking by blocking iframe embedding
-- HSTS: Forces HTTPS connections for future visits
-- Other Helmet defaults: XSS protection, MIME sniffing prevention, etc.
+The application implements a two-layer authentication system combining local credentials and JWT-based session management.
 
-### API Routes and Caching Strategies
+### Local Authentication
 
-#### 1. `GET /photos`
-- **Purpose:** Fetch all public photos (main feed)
-- **Cache Policy:** `public, max-age=300, stale-while-revalidate=60`
+Users can create accounts with an email and password. Here's how it works:
 
-#### 2. `GET /photos/:id`
-- **Purpose:** Fetch a single photo by ID
-- **Cache Policy:** `public, max-age=600`
+**Registration Process:**
+1. User provides email, username, and password
+2. System checks if email/username already exists
+3. Password is hashed using bcryptjs (10 salt rounds) before storage
+4. User account is created in MongoDB
+5. JWT token is generated and set as an HttpOnly cookie
 
-#### 3. `GET /users/:username`
-- **Purpose:** Get user profile and their public photos
-- **Cache Policy:** `public, max-age=300`
+**Login Process:**
+1. User submits email and password
+2. System retrieves user from database
+3. Password is compared with stored hash using bcryptjs
+4. If valid, a new JWT token is generated (session fixation prevention)
+5. Token is set as a secure HttpOnly cookie
 
-#### 4. `GET /users/:username/private`
-- **Purpose:** Access user's private photos
-- **Cache Policy:** `private, no-store, no-cache, must-revalidate`
+**Why this approach?** Bcryptjs is slow by design—it's intentionally computationally expensive, which makes it resistant to brute-force attacks. Even if someone got the password hashes, cracking them would take an impractically long time.
 
-#### 5. `POST /photos/upload`
-- **Purpose:** Upload a new photo
-- **Cache Policy:** `no-store`
+### JWT Token Management
 
-### Trade-offs and Considerations
+**Token Storage:** HttpOnly cookies with the following attributes:
+- `httpOnly: true` - Prevents JavaScript from accessing the token (XSS protection)
+- `secure: true` - Token only sent over HTTPS
+- `sameSite: 'strict'` - Prevents CSRF attacks by blocking cross-site cookie sending
+- `maxAge: 7 days` - Tokens expire after 7 days, requiring re-authentication
 
-**Performance vs Security:**
-- Public content is aggressively cached (5-10 min) for performance
-- Private/sensitive data is never cached, prioritizing security
-- Stale-while-revalidate provides smooth UX without compromising data freshness
+**Why HttpOnly cookies?** This is more secure than localStorage because JavaScript can't access it, protecting against XSS attacks. Even if an attacker injects malicious code, they can't steal the token.
 
-**Cache Duration Decisions:**
-- 5 minutes for feeds: Frequent enough to feel current, long enough to reduce load
-- 10 minutes for individual items: Static content can be cached longer
-- No caching for private data: Security always wins over performance
+**Token Blacklist on Logout:**
+When users log out, their token is added to an in-memory blacklist. This prevents old tokens from being used even if they're somehow intercepted, providing complete session control.
 
-### Testing the Configuration
+### Third-Party Authentication (SSO Ready)
 
-**Test HTTPS:**
-```bash
-curl -k https://localhost:3000
+The application is structured to support OAuth providers (like Google). The authentication middleware can validate tokens from both local and SSO providers.
+
+---
+
+## Role-Based Access Control
+
+The application implements a simple but effective role system with two tiers:
+
+### User Roles
+
+**User Role (Default)**
+- Can upload photos (public or private)
+- Can view their own profile and public photos
+- Can view their private photos
+- Cannot access admin endpoints
+
+**Admin Role**
+- Can view all users in the system
+- Can promote/demote users
+- Can view all photos (public and private)
+- Can delete any photo
+- Can access `/admin/*` endpoints
+
+### Role Enforcement
+
+Roles are stored in the MongoDB User model and validated via middleware on every protected request. Here's the flow:
+
+```
+Request → authMiddleware (verify JWT) → roleMiddleware (check role) → Route Handler
 ```
 
-**Test Caching Headers:**
-```bash
-curl -k -I https://localhost:3000/photos
+If a user lacks the required role, they get a 403 Forbidden response.
+
+### How Roles Are Assigned
+
+- **Default:** Users are assigned the "User" role on signup
+- **Promotion:** Only admins can promote users to admin via the `/admin/promote/:userId` endpoint
+- **Demotion:** Only admins can demote admins back to regular users
+
+---
+
+## Security Features
+
+Here's a breakdown of each security layer and why it matters:
+
+### 1. **HTTPS/SSL Encryption**
+- All traffic is encrypted using SSL/TLS certificates
+- Prevents man-in-the-middle attacks where someone on the network could see user credentials or data
+- Think of it like a locked envelope for your messages instead of a postcard anyone can read
+
+### 2. **Password Hashing with Bcryptjs**
+- Passwords are never stored as plain text
+- Bcryptjs uses salting and multiple rounds to slow down cracking attempts
+- Even if the database is compromised, passwords can't be easily recovered
+
+### 3. **JWT Tokens with Expiration**
+- Tokens expire after 7 days, limiting the window of vulnerability if a token is stolen
+- Short expiration times reduce the impact of token compromise
+
+### 4. **CSRF Protection (Cross-Site Request Forgery)**
+- Implemented via the `csurf` middleware and cookie parsing
+- Prevents attackers from tricking users into performing unintended actions on the app
+- Example attack prevented: A malicious site can't trick your browser into deleting your photos
+
+### 5. **HttpOnly Cookies**
+- Tokens stored in HttpOnly cookies can't be accessed by JavaScript
+- Protects against XSS (Cross-Site Scripting) attacks
+- Even if malicious code runs on the page, it can't steal the token
+
+### 6. **Rate Limiting**
+- **Login attempts:** Limited to 5 attempts per 15 minutes
+- **Signup attempts:** Limited to 3 attempts per hour
+- Prevents brute-force attacks and account enumeration
+- Temporarily locks attackers out after exceeding limits
+
+### 7. **Session Fixation Prevention**
+- New tokens are generated on every login/signup (not reused)
+- Tokens are invalidated on logout via the blacklist
+- If an attacker somehow obtains an old session ID, it won't work because the app always generates fresh ones
+
+### 8. **Content Security Policy (CSP)**
+- Configured via Helmet middleware
+- Restricts what scripts/styles can run on the page
+- Prevents injected malicious code from executing
+
+### 9. **HSTS (HTTP Strict Transport Security)**
+- Configured via Helmet with 1-year max-age
+- Tells browsers to always use HTTPS when communicating with the app
+- Prevents downgrade attacks where attackers force unencrypted connections
+
+### 10. **X-Frame-Options Protection**
+- Set to 'deny' via Helmet
+- Prevents the app from being embedded in iframes on other sites
+- Stops clickjacking attacks
+
+### 11. **Secure Caching Headers**
+- Public photos: Cached for 5 minutes (improves performance)
+- Private photos: Never cached (`no-store`, `no-cache`, `must-revalidate`)
+- POST requests: Never cached
+- Prevents sensitive data from being stored in browser cache
+
+---
+
+## API Endpoints
+
+### Authentication Routes
+
+**POST /auth/signup**
+```json
+Request:
+{
+  "email": "user@example.com",
+  "username": "johndoe",
+  "password": "securepassword123"
+}
+
+Response:
+{
+  "message": "User created successfully",
+  "token": "eyJhbGc...",
+  "user": {
+    "id": "...",
+    "email": "user@example.com",
+    "username": "johndoe",
+    "role": "User"
+  }
+}
 ```
 
-*You can test any route you wish by utilizing the above command, which will display the caching headers utilized in each route.*
+**POST /auth/login**
+```json
+Request:
+{
+  "email": "user@example.com",
+  "password": "securepassword123"
+}
 
-**Test Routes:**
-- Public feed: `https://localhost:3000/photos`
-- Single photo: `https://localhost:3000/photos/1`
-- User profile: `https://localhost:3000/users/john_doe`
-- Private photos: `https://localhost:3000/users/john_doe/private`
+Response:
+{
+  "message": "Login successful",
+  "token": "eyJhbGc...",
+  "user": { ... }
+}
+```
 
-### Lessons Learned / Reflection
+**POST /auth/logout** (requires authentication)
+```
+Headers:
+Authorization: Bearer <token>
 
-While the SSL certificate certainly helps the security of my website, I found it to be the easiest part of developing the initial security foundation in comparison to setting up the Helmet security headers. This took a while to do correctly, but is *extremely powerful* as it allows me to whitelist only my website as a source for scripts and other resources. It prevents XSS or cross-site scripting attacks from occuring because of this, and clickjacking attacks are prevented with the X-Frame-Options set to DENY. All future connections are forced to use HTTPS, so even if someone tried to downgrade to unencrypted HTTP it would fail. Altogether, the security headers and SSL certficate help to make my site more secure than previous iterations of websites I've made. Testing it was a bit difficult, as I was unsure how to use bash initially but figured it out quickly once I read some documentation. Overall, this process was not terribly difficult, but definitely required careful attention and thought as to *what* policies were appropriate for each route and ensuring everything lined up with my goals for this initial phase of the project.
+Response:
+{
+  "message": "Logged out successfully. Session invalidated."
+}
+```
 
-I also learned a bit more on how front-end frameworks deal with CSP directives and Helment options. I had to use an 'unsafe-inline' class for my styles to function properly, and while it also makes the user unable to see uploaded photos (as they are currently fetched from an external source rather than being uploaded to a database,) this is to be expected using JSON rather than having a full database setup to actually create a fully functioning application. In the future as this app sees further phases of development, a DB may be added to facilitate further dives into web security. 
+### Photo Routes
 
-### Technologies Used
+**GET /photos** (public, cached)
+- Returns all public photos
 
-- Node.js
-- Express.js
-- Helmet (security middleware)
-- OpenSSL (SSL certificates)
-- HTTPS (secure communications)
+**GET /photos/:id** (public, cached)
+- Returns a single public photo
 
+**GET /users/:username** (public, cached)
+- Returns a user's profile and public photos
 
-## Photo Credits:
-### Sunset.jpg
-- Photo by Sebastian Voortman: https://www.pexels.com/photo/body-of-water-during-golden-hour-189349/
+**GET /users/:username/private** (requires auth, not cached)
+- Returns a user's private photos
+- Only accessible to the user who owns them
 
-### City.jpg
-- Photo by Peng LIU: https://www.pexels.com/photo/raised-building-frame-169647/
+**POST /photos/upload** (requires auth)
+```json
+Request:
+{
+  "title": "My Photo",
+  "url": "https://...",
+  "public": true
+}
 
-### Mountains.jpg
-- Photo by Peng LIU: https://www.pexels.com/photo/raised-building-frame-169647/
+Response:
+{
+  "message": "Photo uploaded successfully",
+  "photo": { ... }
+}
+```
 
-### Family.jpg
-- Photo by Pixabay: https://www.pexels.com/photo/grandmother-and-grandfather-holding-child-on-their-lap-302083/
+### Admin Routes (Admin-only)
+
+**GET /admin/users**
+- Returns all users in the system (passwords excluded)
+
+**POST /admin/promote/:userId**
+- Promotes a user to admin
+
+**POST /admin/demote/:userId**
+- Demotes an admin to regular user
+
+**GET /admin/photos**
+- Returns all photos (public and private)
+
+**DELETE /admin/photos/:photoId**
+- Deletes a photo
+
+---
+
+## Lessons Learned
+
+### What Went Well
+
+1. **HttpOnly Cookies + HTTPS = Solid Foundation**
+   - Using HttpOnly cookies instead of localStorage immediately eliminated XSS token theft vulnerabilities
+   - Combining this with HTTPS made the authentication layer very robust
+
+2. **Rate Limiting Prevents Abuse**
+   - Implementing rate limits on login/signup was straightforward but incredibly effective
+   - It immediately prevented brute-force attacks and account enumeration
+
+3. **Token Blacklist for Logout**
+   - A simple in-memory blacklist solved the logout problem elegantly
+   - Users are immediately logged out when they log out (not just when the token expires)
+
+4. **Middleware Pipeline**
+   - Layering middleware (auth → role check → handler) made authorization logic clean and reusable
+   - Adding a new protected endpoint is as simple as attaching middleware
+
+### Challenges Faced
+
+1. **Session Fixation Prevention**
+   - **Challenge:** Initially considered reusing tokens, but realized this could let attackers maintain compromised sessions
+   - **Solution:** Generate new tokens on every login/signup, making old tokens useless
+   - **Trade-off:** Requires careful token management, but vastly improves security
+
+2. **Token Storage Dilemma**
+   - **Challenge:** Chose HttpOnly cookies for security, but this means:
+     - Frontend can't directly access the token (can't debug easily, had to try multiple configurations to get it to work)
+     - Token is only available server-side (requires API for refresh logic)
+   - **Solution:** Accepted these constraints for better security—security > convenience
+
+3. **Balancing Cache with Security**
+   - **Challenge:** Public photos should cache for performance, but private photos must never cache
+   - **Solution:** Implemented granular cache headers:
+     - Public: cached 5 minutes
+     - Private: never cached
+     - POST: never cached
+   - **Trade-off:** More complex but ensures sensitive data never lingers in cache
+
+4. **CSRF Protection in a Token-Based API**
+   - **Challenge:** CSRF middleware (`csurf`) is traditionally for form-based apps, not APIs
+   - **Solution:** Configured it to work with cookies, even though token-based auth is already CSRF-safe
+   - **Lesson:** Defense in depth—multiple layers catch different attack vectors
+
+5. **Admin Role Scope**
+   - **Challenge:** Decided how powerful admins should be
+   - **Decision:** Admins can view/delete all photos and manage users
+   - **Trade-off:** Simpler implementation, but in production might need more granular admin roles (e.g., photo moderators vs. user managers)
+
+### Security Trade-offs Made
+
+| Security Measure | Trade-off | Reasoning |
+|---|---|---|
+| HttpOnly cookies | Can't debug token directly in browser | Worth it—XSS protection is critical |
+| 7-day token expiry | Users need to re-login every week | Balanced with convenience—not too frequent |
+| Rate limiting | Legitimate users might get blocked briefly | Prevents account takeover attempts |
+| No token refresh endpoint | Users must log in again when tokens expire | Simpler to implement, acceptable UX |
+| In-memory blacklist | Lost on server restart | Fine for development; use Redis in production |
+
+### What I'd Improve in Production
+
+1. **Persistent Token Blacklist:** Use Redis instead of in-memory storage so logout persists across server restarts
+2. **OAuth Integration:** Fully implement Google OAuth 2.0 for SSO, not just the scaffold
+3. **Email Verification:** Verify email addresses on signup to prevent fake accounts
+4. **Password Reset Flow:** Add secure password reset via email tokens
+5. **Audit Logging:** Log all admin actions and authentication events for compliance
+6. **2FA (Two-Factor Authentication):** Add TOTP or SMS-based 2FA for extra security
+7. **Granular Admin Roles:** Split admin functionality into specific roles (photo moderator, user manager, etc.)
+8. **API Rate Limiting by User:** Prevent resource exhaustion by individual users, not just IPs
+
+### Key Takeaway
+
+Security and usability shouldn't be enemies, they're partners. The best security system is one that users will actually use. HttpOnly cookies, JWT expiration, and rate limiting all improve security without frustrating users. The challenge is finding that balance: strong enough to stop attacks, flexible enough that legitimate users aren't blocked. I feel like I achieved that somewhat decently with this application, though there are still things to improve if I were to go to full production.
+
+---
+
+## Testing the Application
+
+### Testing Files and Screenshots
+If you don't wish to test the application yourself, I've posted some screenshots in addition to a recording of the user introduction and basic features of the website. These are contained within the testing directory of this repository. 
+
+### Test Authentication Flow
+1. Sign up at `https://localhost:3000/auth/signup`
+2. Verify token is set as HttpOnly cookie (check browser DevTools → Application → Cookies)
+3. Login with credentials
+4. Try accessing `/admin/users` as a regular user (should return 403 Forbidden)
+5. Promote user to admin via database or admin endpoint
+6. Access `/admin/users` again (should succeed)
+7. Logout and verify token is blacklisted (subsequent requests fail with 401 Unauthorized)
+
+### Test Rate Limiting
+1. Try logging in with wrong password 5 times in quick succession
+2. Verify you get blocked with "Too many login attempts" message
+3. Wait 15 minutes or restart the server to test again
+
+### Test CSRF/XSS Protection
+1. Verify CSRF token is present on forms (if using form-based auth)
+2. Try accessing the app from a different origin and verify requests fail
+3. Check browser DevTools → Application → Cookies to confirm HttpOnly flag
+
+---
+
+## License
+
+ISC
