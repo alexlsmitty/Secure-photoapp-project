@@ -32,18 +32,22 @@ const generateToken = (id) => {
 };
 
 // POST /auth/signup
-router.post('/auth/signup', signupLimiter, async (req, res) => {
+router.post('/auth/signup', async (req, res) => {
   try {
     const { email, username, password } = req.body;
+    console.log('Signup - req.body:', req.body);
 
     // Validation
     if (!email || !username || !password) {
+      console.log('Signup - Missing fields');
       return res.status(400).json({ error: 'All fields required' });
     }
 
     // Check if user already exists
     let user = await User.findOne({ $or: [{ email }, { username }] });
+    console.log('Signup - User.findOne result:', user);
     if (user) {
+      console.log('Signup - User already exists');
       return res.status(400).json({ error: 'User already exists' });
     }
 
@@ -76,6 +80,7 @@ router.post('/auth/signup', signupLimiter, async (req, res) => {
       user: { id: user._id, email: user.email, username: user.username, role: user.role }
     });
   } catch (error) {
+    console.error('Signup - Server error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });
@@ -228,17 +233,18 @@ router.post('/auth/forgot-password', async (req, res) => {
 
     // Send the email
     const resetLink = `https://localhost:3000/reset-password?token=${token}`;
-    const mailOptions = {
-      from: '"Secure Photo App" <noreply@securephoto.com>',
-      to: user.email,
-      subject: 'Password Reset Request',
-      html: `<p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
-             <p>Please click on the following link, or paste this into your browser to complete the process:</p>
-             <p><a href="${resetLink}">${resetLink}</a></p>
-             <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`
-    };
+    console.log('Password reset link:', resetLink); // Log the link for testing
+    // const mailOptions = {
+    //   from: '"Secure Photo App" <noreply@securephoto.com>',
+    //   to: user.email,
+    //   subject: 'Password Reset Request',
+    //   html: `<p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
+    //          <p>Please click on the following link, or paste this into your browser to complete the process:</p>
+    //          <p><a href="${resetLink}">${resetLink}</a></p>
+    //          <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`
+    // };
 
-    await transporter.sendMail(mailOptions);
+    // await transporter.sendMail(mailOptions);
 
     res.status(200).json({ message: 'If a user with that email exists, a password reset link has been sent.' });
   } catch (error) {

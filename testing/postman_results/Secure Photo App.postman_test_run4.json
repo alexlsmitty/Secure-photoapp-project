@@ -1,0 +1,303 @@
+{
+	"id": "2e8ce2b6-18c5-402d-ac09-ba69cfc7919a",
+	"name": "Secure Photo App",
+	"timestamp": "2025-11-27T04:30:12.492Z",
+	"collection_id": "49744250-da36ff19-a6ff-432c-8c02-d2fcb572c60f",
+	"folder_id": 0,
+	"environment_id": "49744250-f2698b38-7dc9-4cce-927a-d15d68ea99ad",
+	"totalPass": 1,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-11-27T04:30:10.687Z",
+	"totalFail": 4,
+	"results": [
+		{
+			"id": "e36857d8-650b-4494-9c1e-02982f66cbb9",
+			"name": "Sign Up",
+			"url": "https://localhost:3000/auth/signup",
+			"time": 66,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status code is 201": false,
+				"Response has a token": false
+			},
+			"testPassFailCounts": {
+				"Status code is 201": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Response has a token": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				66
+			],
+			"allTests": [
+				{
+					"Status code is 201": false,
+					"Response has a token": false
+				}
+			]
+		},
+		{
+			"id": "fc112244-605b-4d0d-af9e-0556fca57c09",
+			"name": "Login",
+			"url": "https://localhost:3000/auth/login",
+			"time": 115,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Status code is 200": false,
+				"Response has a token": false
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Response has a token": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				115
+			],
+			"allTests": [
+				{
+					"Status code is 200": false,
+					"Response has a token": false
+				}
+			]
+		},
+		{
+			"id": "08410c9f-5b1a-4646-9af3-4b238af1e6e6",
+			"name": "Logout",
+			"url": "https://localhost:3000/auth/logout",
+			"time": 4,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				4
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "97e48e27-8d59-45b5-8e4c-c7e2b5be1bd2",
+			"name": "Forgot Password",
+			"url": "https://localhost:3000/auth/forgot-password",
+			"time": 35,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				35
+			],
+			"allTests": [
+				{
+					"Status code is 200": true
+				}
+			]
+		},
+		{
+			"id": "8ea2c931-cbbc-4124-a3d2-75deaa2e1122",
+			"name": "Reset Password",
+			"url": "https://localhost:3000/auth/reset-password/",
+			"time": 3,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				3
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "c3b2a824-8fbc-453c-bab4-a82fe486211f",
+			"name": "Get Profile",
+			"url": "https://localhost:3000/profile",
+			"time": 4,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				4
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "dea41baa-0663-4a2f-a658-8514683363e9",
+			"name": "Update Profile",
+			"url": "https://localhost:3000/profile",
+			"time": 3,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				3
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "4f03a4ce-0771-4896-b759-08b4c842260b",
+			"name": "Change Password",
+			"url": "https://localhost:3000/profile/password",
+			"time": 3,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				3
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "cf78f0b9-f9df-4715-9d57-9999a5e73b21",
+			"name": "Delete Account",
+			"url": "https://localhost:3000/profile",
+			"time": 4,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				4
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "59d0664b-8ede-4f18-8bc8-4216c8bddbdc",
+			"name": "Get All Photos",
+			"url": "https://localhost:3000/photos",
+			"time": 310,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				310
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "2599a728-ce98-4580-8515-bf0c08a50391",
+			"name": "Upload Photo",
+			"url": "https://localhost:3000/photos/upload",
+			"time": 8,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				8
+			],
+			"allTests": [
+				{}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 555,
+	"collection": {
+		"requests": [
+			{
+				"id": "e36857d8-650b-4494-9c1e-02982f66cbb9",
+				"method": "POST"
+			},
+			{
+				"id": "fc112244-605b-4d0d-af9e-0556fca57c09",
+				"method": "POST"
+			},
+			{
+				"id": "08410c9f-5b1a-4646-9af3-4b238af1e6e6",
+				"method": "POST"
+			},
+			{
+				"id": "97e48e27-8d59-45b5-8e4c-c7e2b5be1bd2",
+				"method": "POST"
+			},
+			{
+				"id": "8ea2c931-cbbc-4124-a3d2-75deaa2e1122",
+				"method": "POST"
+			},
+			{
+				"id": "c3b2a824-8fbc-453c-bab4-a82fe486211f",
+				"method": "GET"
+			},
+			{
+				"id": "dea41baa-0663-4a2f-a658-8514683363e9",
+				"method": "PUT"
+			},
+			{
+				"id": "4f03a4ce-0771-4896-b759-08b4c842260b",
+				"method": "PUT"
+			},
+			{
+				"id": "cf78f0b9-f9df-4715-9d57-9999a5e73b21",
+				"method": "DELETE"
+			},
+			{
+				"id": "59d0664b-8ede-4f18-8bc8-4216c8bddbdc",
+				"method": "GET"
+			},
+			{
+				"id": "2599a728-ce98-4580-8515-bf0c08a50391",
+				"method": "POST"
+			}
+		]
+	}
+}

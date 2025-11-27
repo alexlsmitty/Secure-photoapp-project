@@ -55,10 +55,10 @@ const UploadPhoto = {
       <button class="back-button" @click="$emit('back')">← Back</button>
 
       <h2>Upload New Photo</h2>
-      <p style="color: #666; margin: 10px 0 30px 0;">✉️ POST request - never cached</p>
+      <p style="color: #666; margin: 10px 0 30px 0;">POST request - never cached</p>
 
       <div v-if="success" class="success">
-        ✅ Photo uploaded successfully! Redirecting...
+        Photo uploaded successfully! Redirecting...
       </div>
 
       <div v-if="error" class="error">

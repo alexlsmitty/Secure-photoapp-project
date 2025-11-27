@@ -71,7 +71,7 @@ const App = {
         this.authView = 'login';
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        console.log('✅ Session cleared and token blacklisted');
+        console.log('Session cleared and token blacklisted');
       }
     },
     navigate(view, params = {}) {
@@ -116,17 +116,17 @@ const App = {
       <!-- Main App -->
       <div v-else>
         <div class="header">
-          <h1>📸 Photo Sharing App</h1>
+          <h1>Photaro</h1>
           <div class="nav">
-            <button 
+            <button
               :class="{ active: currentView === 'feed' }"
               @click="navigate('feed')">
               Feed
             </button>
-            <button 
+            <button
               :class="{ active: currentView === 'dashboard' }"
               @click="navigate('dashboard')">
-              📊 Dashboard
+              Dashboard
             </button>
             <button 
               :class="{ active: currentView === 'private' }"

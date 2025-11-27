@@ -1,0 +1,416 @@
+{
+	"id": "5469ae63-2588-4388-87c9-e2167227d071",
+	"name": "Secure Photo App - Comprehensive",
+	"timestamp": "2025-11-27T04:50:04.520Z",
+	"collection_id": "49744250-90826aa0-4378-4f90-bddf-1418dac8cd07",
+	"folder_id": 0,
+	"environment_id": "49744250-f2698b38-7dc9-4cce-927a-d15d68ea99ad",
+	"totalPass": 12,
+	"delay": 0,
+	"persist": true,
+	"status": "error",
+	"startedAt": "2025-11-27T04:50:02.653Z",
+	"totalFail": 12,
+	"results": [
+		{
+			"id": "b3e38946-a9b2-4a84-81ad-8c87567796f1",
+			"name": "Sign Up",
+			"url": "https://localhost:3000/auth/signup",
+			"time": 277,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status code is 201": true,
+				"Response has a token": true,
+				"Response has a refresh token cookie": true
+			},
+			"testPassFailCounts": {
+				"Status code is 201": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has a token": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has a refresh token cookie": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				277
+			],
+			"allTests": [
+				{
+					"Status code is 201": true,
+					"Response has a token": true,
+					"Response has a refresh token cookie": true
+				}
+			]
+		},
+		{
+			"id": "e6ce3745-66ae-4a71-9387-9baef7aea288",
+			"name": "Login",
+			"url": "https://localhost:3000/auth/login",
+			"time": 171,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response has a token": true,
+				"Response has a refresh token cookie": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has a token": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has a refresh token cookie": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				171
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response has a token": true,
+					"Response has a refresh token cookie": true
+				}
+			]
+		},
+		{
+			"id": "549beb55-422c-46dd-a0e6-e586499aab7e",
+			"name": "Logout",
+			"url": "https://localhost:3000/auth/logout",
+			"time": 98,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response message is correct": true,
+				"Token cookie is cleared": true,
+				"Refresh token cookie is cleared": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response message is correct": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Token cookie is cleared": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Refresh token cookie is cleared": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				98
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response message is correct": true,
+					"Token cookie is cleared": true,
+					"Refresh token cookie is cleared": true
+				}
+			]
+		},
+		{
+			"id": "d7e88084-577c-498f-a632-ff4134b952fd",
+			"name": "Refresh Token",
+			"url": "https://localhost:3000/auth/refresh-token",
+			"time": 3,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Status code is 200": false,
+				"Response has a new token": false
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Response has a new token": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"Status code is 200": false,
+					"Response has a new token": false
+				}
+			]
+		},
+		{
+			"id": "e68444fe-011d-4dd3-8521-2c9056a38b70",
+			"name": "Get Profile",
+			"url": "https://localhost:3000/profile",
+			"time": 5,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Status code is 200": false,
+				"Response has user data": false
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Response has user data": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				5
+			],
+			"allTests": [
+				{
+					"Status code is 200": false,
+					"Response has user data": false
+				}
+			]
+		},
+		{
+			"id": "9ef2b208-19dc-42f6-9896-baad1fbcf0b9",
+			"name": "Update Profile",
+			"url": "https://localhost:3000/profile",
+			"time": 3,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Status code is 200": false,
+				"Profile updated successfully": false
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Profile updated successfully": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"Status code is 200": false,
+					"Profile updated successfully": false
+				}
+			]
+		},
+		{
+			"id": "287c83ef-5d33-434f-977f-b5422e2cdea0",
+			"name": "Change Password",
+			"url": "https://localhost:3000/profile/password",
+			"time": 4,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Status code is 200": false,
+				"Password changed successfully": false
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Password changed successfully": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				4
+			],
+			"allTests": [
+				{
+					"Status code is 200": false,
+					"Password changed successfully": false
+				}
+			]
+		},
+		{
+			"id": "61604294-3433-4197-9d50-b9d68468b42b",
+			"name": "Delete Account",
+			"url": "https://localhost:3000/profile",
+			"time": 4,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Status code is 200": false,
+				"Account deleted successfully": false
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Account deleted successfully": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				4
+			],
+			"allTests": [
+				{
+					"Status code is 200": false,
+					"Account deleted successfully": false
+				}
+			]
+		},
+		{
+			"id": "49154a12-16b4-460f-912e-87aeb4502fbd",
+			"name": "Get All Photos (Public)",
+			"url": "https://localhost:3000/photos",
+			"time": 34,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response is an array of photos": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response is an array of photos": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				34
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response is an array of photos": true
+				}
+			]
+		},
+		{
+			"id": "d57bfe7d-6f16-43fc-87b0-72a3e94f6024",
+			"name": "Upload Photo",
+			"url": "https://localhost:3000/photos/upload",
+			"time": 3,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Status code is 201": false,
+				"Photo uploaded successfully": false
+			},
+			"testPassFailCounts": {
+				"Status code is 201": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Photo uploaded successfully": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"Status code is 201": false,
+					"Photo uploaded successfully": false
+				}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 602,
+	"collection": {
+		"requests": [
+			{
+				"id": "b3e38946-a9b2-4a84-81ad-8c87567796f1",
+				"method": "POST"
+			},
+			{
+				"id": "e6ce3745-66ae-4a71-9387-9baef7aea288",
+				"method": "POST"
+			},
+			{
+				"id": "549beb55-422c-46dd-a0e6-e586499aab7e",
+				"method": "POST"
+			},
+			{
+				"id": "d7e88084-577c-498f-a632-ff4134b952fd",
+				"method": "POST"
+			},
+			{
+				"id": "e68444fe-011d-4dd3-8521-2c9056a38b70",
+				"method": "GET"
+			},
+			{
+				"id": "9ef2b208-19dc-42f6-9896-baad1fbcf0b9",
+				"method": "PUT"
+			},
+			{
+				"id": "287c83ef-5d33-434f-977f-b5422e2cdea0",
+				"method": "PUT"
+			},
+			{
+				"id": "61604294-3433-4197-9d50-b9d68468b42b",
+				"method": "DELETE"
+			},
+			{
+				"id": "49154a12-16b4-460f-912e-87aeb4502fbd",
+				"method": "GET"
+			},
+			{
+				"id": "d57bfe7d-6f16-43fc-87b0-72a3e94f6024",
+				"method": "POST"
+			}
+		]
+	}
+}

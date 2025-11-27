@@ -58,7 +58,7 @@ router.get('/photos/:id/detail', authMiddleware, async (req, res) => {
     }
     
     // If photo is private, only owner or admin can view it
-    if (photo.userId.toString() !== req.user.userId.toString() && req.user.role !== 'Admin') {
+    if (photo.userId.toString() !== req.user._id.toString() && req.user.role !== 'Admin') {
       return res.status(403).json({ error: 'Access denied. You can only view your own private photos.' });
     }
     
@@ -74,8 +74,8 @@ router.get('/photos/:id/detail', authMiddleware, async (req, res) => {
 router.get('/my-photos', authMiddleware, async (req, res) => {
   try {
     res.set('Cache-Control', 'private, no-store, no-cache, must-revalidate');
-    
-    const photos = await Photo.find({ userId: req.user.userId });
+
+    const photos = await Photo.find({ userId: req.user._id });
     
     const publicPhotos = photos.filter(p => p.public);
     const privatePhotos = photos.filter(p => !p.public);
@@ -112,7 +112,7 @@ router.put('/photos/:id/privacy', authMiddleware, privacyToggleLimiter, async (r
     }
     
     // Only owner can change privacy settings
-    if (photo.userId.toString() !== req.user.userId.toString()) {
+    if (photo.userId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ error: 'Access denied. You can only modify your own photos.' });
     }
     
@@ -185,7 +185,7 @@ router.post('/photos/upload', authMiddleware, async (req, res) => {
       title,
       url,
       username: req.user.username,
-      userId: req.user.userId,
+      userId: req.user._id,
       public: isPublic !== false
     });
     
