@@ -24,7 +24,7 @@ const UploadPhoto = {
         this.error = null;
         this.success = false;
 
-        const response = await fetch('https://localhost:3000/photos/upload', {
+        const response = await api.fetch('https://localhost:3000/photos/upload', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

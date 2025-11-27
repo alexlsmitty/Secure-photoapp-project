@@ -23,6 +23,23 @@ const userSchema = new mongoose.Schema({
     default: 'User'
   },
   googleId: String,
+  bio: {
+    type: String,
+    maxlength: 500,
+    default: ''
+  },
+  profilePicture: {
+    type: String,
+    default: ''
+  },
+  lastPasswordChange: {
+    type: Date,
+    default: Date.now
+  },
+  accountDeletedAt: {
+    type: Date,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -35,6 +52,12 @@ userSchema.pre('save', async function(next) {
   
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+  
+  // Update lastPasswordChange when password is changed
+  if (this.isModified('password') && !this.isNew) {
+    this.lastPasswordChange = Date.now();
+  }
+  
   next();
 });
 

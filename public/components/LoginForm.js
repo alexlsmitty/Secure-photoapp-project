@@ -28,7 +28,7 @@ const LoginForm = {
         this.loading = true;
         this.error = null;
 
-        const response = await fetch('https://localhost:3000/auth/login', {
+        const response = await api.fetch('https://localhost:3000/auth/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ const LoginForm = {
         this.loading = true;
         this.error = null;
 
-        const response = await fetch('https://localhost:3000/auth/signup', {
+        const response = await api.fetch('https://localhost:3000/auth/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -164,6 +164,9 @@ const LoginForm = {
         <button type="submit" class="btn" :disabled="loading" style="width: 100%;">
           {{ loading ? 'Logging in...' : 'Login' }}
         </button>
+        <div class="login-links">
+          <a href="#" @click.prevent="$emit('show-forgot-password')">Forgot Password?</a>
+        </div>
       </form>
 
       <form v-if="activeTab === 'signup'" @submit.prevent="handleSignup">
@@ -213,5 +216,5 @@ const LoginForm = {
       </form>
     </div>
   `,
-  emits: ['login']
+  emits: ['login', 'show-forgot-password']
 };

@@ -14,7 +14,7 @@ const UserProfile = {
     async fetchProfile() {
       try {
         this.loading = true;
-        const response = await fetch(`https://localhost:3000/users/${this.username}`);
+        const response = await api.fetch(`https://localhost:3000/users/${this.username}`);
         if (!response.ok) throw new Error('User not found');
         this.userData = await response.json();
         this.error = null;

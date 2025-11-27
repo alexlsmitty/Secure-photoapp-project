@@ -25,7 +25,7 @@ const PhotoDetail = {
           headers['Authorization'] = `Bearer ${this.token}`;
         }
         
-        const response = await fetch(`https://localhost:3000/photos/${this.photoId}/detail`, {
+        const response = await api.fetch(`https://localhost:3000/photos/${this.photoId}/detail`, {
           headers: headers
         });
         

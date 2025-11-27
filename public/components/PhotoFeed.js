@@ -13,7 +13,7 @@ const PhotoFeed = {
     async fetchPhotos() {
       try {
         this.loading = true;
-        const response = await fetch('https://localhost:3000/photos');
+        const response = await api.fetch('https://localhost:3000/photos');
         const data = await response.json();
         this.photos = data.photos;
         this.error = null;

@@ -20,7 +20,7 @@ const PrivateGallery = {
       try {
         this.loading = true;
         console.log('Fetching private photos with auth header:', `Bearer ${this.token}`);
-        const response = await fetch(`https://localhost:3000/users/${this.username}/private`, {
+        const response = await api.fetch(`https://localhost:3000/users/${this.username}/private`, {
           headers: {
             'Authorization': `Bearer ${this.token}`
           }

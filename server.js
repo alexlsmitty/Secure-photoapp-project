@@ -38,10 +38,12 @@ app.use(helmet({
 // Import routes (AFTER middleware)
 const authRoutes = require('./routes/auth');
 const photoRoutes = require('./routes/photos');
+const profileRoutes = require('./routes/profile');
 const adminRoutes = require('./routes/admin');
 
 app.use('/', authRoutes);
 app.use('/', photoRoutes);
+app.use('/profile', profileRoutes);
 app.use('/', adminRoutes);
 
 // Basic health check route

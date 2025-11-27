@@ -8,6 +8,8 @@ const App = {
       token: null,
       user: null,
       currentView: 'feed',
+      authView: 'login', // 'login', 'forgot-password', 'reset-password'
+      resetToken: null,
       selectedPhotoId: null,
       selectedUsername: null,
     };
@@ -27,6 +29,12 @@ const App = {
       console.log('User logged in:', this.user.username);
     } else {
       console.log('Showing login screen');
+      const urlParams = new URLSearchParams(window.location.search);
+      const resetToken = urlParams.get('token');
+      if (resetToken) {
+        this.resetToken = resetToken;
+        this.authView = 'reset-password';
+      }
     }
   },
   methods: {
@@ -36,8 +44,11 @@ const App = {
       this.token = token;
       this.user = user;
       this.isLoggedIn = true;
-      this.currentView = 'feed';
+      this.currentView = 'dashboard'; // Redirect to dashboard after login
       console.log('After setting - this.token:', this.token ? `${this.token.substring(0, 20)}...` : 'undefined');
+    },
+    handleProfileUpdate(updatedUser) {
+      this.user = updatedUser;
     },
     async handleLogout() {
       console.log('Logging out...');
@@ -57,6 +68,7 @@ const App = {
         this.user = null;
         this.isLoggedIn = false;
         this.currentView = 'feed';
+        this.authView = 'login';
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         console.log('✅ Session cleared and token blacklisted');
@@ -73,15 +85,33 @@ const App = {
       this.currentView = 'feed';
       this.selectedPhotoId = null;
       this.selectedUsername = null;
+    },
+    showForgotPassword() {
+      this.authView = 'forgot-password';
+    },
+    showLogin() {
+      this.authView = 'login';
     }
   },
   template: `
     <div>
-      <!-- Login View -->
-      <login-form 
-        v-if="!isLoggedIn"
-        @login="handleLogin">
-      </login-form>
+      <!-- Auth Views -->
+      <div v-if="!isLoggedIn">
+        <login-form 
+          v-if="authView === 'login'"
+          @login="handleLogin"
+          @show-forgot-password="showForgotPassword">
+        </login-form>
+        <forgot-password
+          v-if="authView === 'forgot-password'"
+          @show-login="showLogin">
+        </forgot-password>
+        <reset-password
+          v-if="authView === 'reset-password'"
+          :token="resetToken"
+          @show-login="showLogin">
+        </reset-password>
+      </div>
 
       <!-- Main App -->
       <div v-else>
@@ -92,6 +122,11 @@ const App = {
               :class="{ active: currentView === 'feed' }"
               @click="navigate('feed')">
               Feed
+            </button>
+            <button 
+              :class="{ active: currentView === 'dashboard' }"
+              @click="navigate('dashboard')">
+              📊 Dashboard
             </button>
             <button 
               :class="{ active: currentView === 'private' }"
@@ -121,6 +156,15 @@ const App = {
             @view-photo="navigate('detail', { photoId: $event })"
             @view-user="navigate('profile', { username: $event })">
           </photo-feed>
+
+          <dashboard
+            v-else-if="currentView === 'dashboard'"
+            :token="token"
+            :user="user"
+            @back="goBack"
+            @logout="handleLogout"
+            @profile-updated="handleProfileUpdate">
+          </dashboard>
 
           <photo-detail 
             v-else-if="currentView === 'detail'"
@@ -159,6 +203,9 @@ const App = {
 // Create and mount the app
 const app = createApp(App);
 app.component('login-form', LoginForm);
+app.component('forgot-password', ForgotPassword);
+app.component('reset-password', ResetPassword);
+app.component('dashboard', Dashboard);
 app.component('photo-feed', PhotoFeed);
 app.component('photo-detail', PhotoDetail);
 app.component('user-profile', UserProfile);
